@@ -9,6 +9,8 @@
 using namespace std;
 using namespace cv;
 
+#include "input.h"
+
 void findEllipses(vector<Mat> channels, int k, Mat &sc, Mat &res, vector<RotatedRect> &minEllipse) {
 	vector<Vec4i> hierarchy;
 	vector<vector<Point>> contours;
@@ -48,27 +50,41 @@ void findEllipses(vector<Mat> channels, int k, Mat &sc, Mat &res, vector<Rotated
 	}
 }
 
-int main() {
-#ifdef GENERATE_SOURCE_IMAGE
-	// 300 dpi (print) = 2480 X 3508 pixels (This is "A4" as I know it, i.e. "210mm X 297mm @ 300 dpi")
-	// 600 dpi = 
-	//unsigned int height = 1123, width = 1587;
-	unsigned int height = 2480 - 100, width = 3508 - 100;
-	Mat image(height, width, CV_8UC3, Scalar(255, 255, 255));
-	int x = 90, y = 55, radius = 30;
-	while (x + 15 < width){
-		while (y + 15 < height) {
-			circle(image, Point(x, y), radius, Scalar(0, 0, 0), CV_FILLED, 4);
-			y += 90;
-		}
-		y = 55;
-		x += 90;
+void generatePattern() {
+    // 300 dpi (print) = 2480 X 3508 pixels (This is "A4" as I know it, i.e. "210mm X 297mm @ 300 dpi")
+    // 600 dpi = 
+    //unsigned int height = 1123, width = 1587;
+    unsigned int height = 2480 - 100, width = 3508 - 100;
+    Mat image(height, width, CV_8UC3, Scalar(255, 255, 255));
+    int x = 90, y = 55, radius = 30;
+    while (x + 15 < width){
+        while (y + 15 < height) {
+            circle(image, Point(x, y), radius, Scalar(0, 0, 0), CV_FILLED, 4);
+            y += 90;
+        }
+        y = 55;
+        x += 90;
 
-	}
+    }
 
-	imwrite("picture.png", image);
-	return 0;
-#endif
+    imwrite("picture.png", image);
+}
+
+int main(int argc, char *argv[]) {
+
+    // Parse input options
+    InputParser input(argc, argv);
+    if(input.cmdOptionExists("-g")){
+        // Generate image with a test pattern to photo
+        cout << "Generating test pattern" << endl;
+        generatePattern();
+        return 0;
+    }
+
+    const std::string &filename = input.getCmdOption("-f");
+    if (!filename.empty()){
+        // Source image file name
+    }
 
 	// Load photo of the template
 	Mat img = imread("src4.png", 1);
